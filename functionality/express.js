@@ -10,7 +10,7 @@ const { validateMovie, validateMoviePartial } = require('../schemas/movies.schem
 const dittoJSON = require('../pokemon/ditto.json') // Se puede leer un JSON directamente
 const moviesJSON = require('../files/movies.json')
 
-/*// CORS
+// CORS
 const cors = require('cors') // Libreria que soluciona el problema de CORS
 // app.use(cors()) // Si no indicamos nada soluciona CORS poniendo "*" a todo
 app.use(cors({
@@ -25,36 +25,11 @@ app.use(cors({
     }
   }
 }))
-*/
 
 // Express hace el preprocesamiento del body para que este esté disponible 
 // y accesible desde la request "req"
 app.use(express.json())
 
-// Las siguientes lineas de middleware se pueden reducir en la linea anterior
-/*
-app.use('/', (req, res, next) => {
-  if (req.method !== 'POST') return next()
-  if (req.headers['content-type'] !== 'application/json') return next()
-
-  // Solo llegan request que son 'POST' y que tienen el header 'Content-Type: application/json'
-  let body = ''
-  // Listening to the "data" event ("chunk" is a read buffer)
-  req.on('data', chunk => {
-    body += chunk.toString()
-  })
-  // End of "data" chunk transfer
-  req.on('end', () => {
-    const data = JSON.parse(body)
-    data.timestamp = Date.now()
-    // NO enviamos los datos
-    // res.status(201).json(data)
-    // Mutamos la request y metemos la información en el req.body
-    req.body = data
-    next()
-  })
-})
-*/
 // POKEMON
 app.get('/pokemon/ditto', (req, res) => {
   res.json(dittoJSON)
@@ -72,15 +47,6 @@ const ACCEPTED_ORIGINS = [
 
 // PELICULAS
 app.get('/movies', (req, res) => {
-  // Para solucionar el problema de CORS, debemos añadir en nuestro endpoint la cabecera
-  // res.header('Access-Control-Allow-Origin', '*') // *: permite todos los origenes
-  // res.header('Access-Control-Allow-Origin', 'http://localhost:8080') // Permite solo 1
-  const origin = req.header('origin')
-  if (!origin || ACCEPTED_ORIGINS.includes(origin)) {
-    // Si el request es de la misma pagina, no tiene origen
-    res.header('Access-Control-Allow-Origin', origin)
-  }
-
   // Modificamos este endpoint para filtrar usando los query params de la URL
   const { genre, year } = req.query
   let filteredMovies = moviesJSON
@@ -109,30 +75,6 @@ app.get('/movies/:id', (req, res) => { // path-to-regexp
 })
 
 app.post('/movies', (req, res) => {
-  // Leemos los parámetros del cuerpo del request (req.body)
-  /*const {
-    title,
-    genre,
-    year,
-    director,
-    duration,
-    rate,
-    poster
-  } = req.body
-  
-  // Creamos una nueva película
-  const newMovie = {
-    id: crypto.randomUUID(),
-    title,
-    genre,
-    year,
-    director,
-    duration,
-    rate: rate ?? 0,
-    poster
-  }
-  */
-
   // Con el nuevo metodo del schema no tenemos que crear un objeto por cada query param del body
   const result = validateMovie(req.body)
 
@@ -190,7 +132,7 @@ app.patch('/movies/:id', (req, res) => {
  * Es decir, necesita esta petición antes para comprobar si está permitido o no hacer la siguiente operación
  */
 
-app.options('/movies/:id', (req, res) => {
+/*app.options('/movies/:id', (req, res) => {
   // Para solucionar el problema de CORS, debemos añadir en nuestro endpoint la cabecera
   // res.header('Access-Control-Allow-Origin', '*') // *: permite todos los origenes
   // res.header('Access-Control-Allow-Origin', 'http://localhost:8080') // Permite solo 1
@@ -202,16 +144,10 @@ app.options('/movies/:id', (req, res) => {
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE')
   }
   res.sendStatus(200)
-})
+})*/
 
 // (!) Da error de CORS si no se define el endpoint de "OPTIONS"
 app.delete('/movies/:id', (req, res) => {
-  const origin = req.header('origin')
-  if (!origin || ACCEPTED_ORIGINS.includes(origin)) {
-    // Si el request es de la misma pagina, no tiene origen
-    res.header('Access-Control-Allow-Origin', origin)
-  }
-
   const { id } = req.params
   const movieIndex = moviesJSON.find(movie => movie.id === id)
   // Si no encontramos la pelicula
