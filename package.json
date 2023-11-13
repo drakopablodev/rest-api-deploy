@@ -1,0 +1,26 @@
+{
+  "name": "test_nodejs",
+  "version": "1.0.0",
+  "description": "test de node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "test",
+    "debug": "node --watch --trace-warnings index.js",
+    "debug:2": "node --watch --trace-warnings ./functionality/express.js"
+  },
+  "author": "drakopablo.dev",
+  "license": "ISC",
+  "devDependencies": {
+    "servor": "^4.0.2",
+    "standard": "^17.1.0"
+  },
+  "dependencies": {
+    "cors": "2.8.5",
+    "express": "4.18.2",
+    "require": "^0.4.4",
+    "zod": "3.22.4"
+  },
+  "eslintConfig": {
+    "extends": "standard"
+  }
+}
